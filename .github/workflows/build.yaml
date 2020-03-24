@@ -1,0 +1,37 @@
+name: Sample
+
+on:
+  push:
+    paths:
+        - ".github/workflows/build.yaml"
+        - "src/**"
+        - "py/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - uses: qualitiaco/action-lambda-build-pack@v1
+      with:
+        src-path: src
+        build-sh: build.sh
+        output-path: output
+
+    - run: |
+        cp -a output/* py/
+        cd py
+        zip -9r ../deploy.zip *
+
+    - name: AWS Lambda Deploy
+      uses: appleboy/lambda-action@v0.0.2
+      with:
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws_region: ${{ secrets.AWS_REGION }}
+        function_name: sample
+        zip_file: deploy.zip
+        # dry_run: true
