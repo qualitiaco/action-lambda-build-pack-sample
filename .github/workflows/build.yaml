@@ -24,7 +24,7 @@ jobs:
     - run: |
         cp -a output/* py/
         cd py
-        zip -9r ../deploy.zip *
+        zip -9yr ../deploy.zip *
 
     - name: AWS Lambda Deploy
       uses: appleboy/lambda-action@v0.0.2
